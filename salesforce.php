@@ -708,26 +708,30 @@ function salesforce_form($options, $is_sidebar = false, $content = '', $form_id 
 	
 	if ( $is_sidebar )
 		$sidebar = ' sidebar';
-	
+
+	$content .= '<section class="form-holder clearfix">';
+
 	if ( $options['wpcf7css'] ) {
-		$content .= '<section class="form-holder clearfix"><div class="wpcf7">';
-	}	
+		$content .= '<div class="wpcf7">';
+	}
+
 	$content .= "\n".'<form id="salesforce_w2l_lead_'.$form_id.str_replace(' ','_',$sidebar).'" class="'.($options['wpcf7css'] ? 'wpcf7-form' : 'w2llead'.$sidebar ).'" method="post">'."\n";
 
 	foreach ($options['forms'][$form_id]['inputs'] as $id => $input) {
 		if (!$input['show'])
 			continue;
+
 		$val 	= '';
 		if (isset($_POST[$id])){
 			$val	= esc_attr(strip_tags(stripslashes($_POST[$id])));
-		}else{
-			if( isset($input['value']) ) $val	= esc_attr(strip_tags(stripslashes($input['value'])));
+		}else if ( isset($input['value']) ) {
+			 $val	= esc_attr(strip_tags(stripslashes($input['value'])));
 		}
 
 		$error 	= ' ';
-		if (isset($input['error']) && $input['error']) 
+		if (!empty($input['error']))
 			$error 	= ' error ';
-			
+
 		if($input['type'] != 'hidden' && $input['type'] != 'current_date') {
       if ($options['wpcf7css']) { $content .= '<p>'; }
       if ($input['type'] == 'checkbox') {
@@ -800,12 +804,14 @@ function salesforce_form($options, $is_sidebar = false, $content = '', $form_id 
 		$sf_hash = sha1($captcha['code'].NONCE_SALT);
 	
 		set_transient( $sf_hash, $captcha['code'], 60*15 );
-	
+
+		$content .= '<div class="w2lcaptcha-container">';
 		$content .=  '<label class="w2llabel">'.__('Type the text shown: *','salesforce').'</label><br>
 			<img class="w2limg" src="' . $captcha['image_src'] . '&hash=' . $sf_hash . '" alt="CAPTCHA image" /><br>';
 
 		$content .=  '<input type="text" class="w2linput text" name="captcha_text" value=""><br>';
 		$content .=  '<input type="hidden" class="w2linput hidden" name="captcha_hash" value="'. $sf_hash .'">';
+		$content .= '</div>';
 	
 	}
 	
